@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js canvas - particles - waves</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				background-color: #000000;
+				margin: 0px;
+				overflow: hidden;
+			}
+			a {
+				color:#fff;
+        font-family: 'Audiowide Regular';
+        letter-spacing: 2px;
+        font-size: .8em;
+			}
+      nav {
+        margin-top: 2em;
+        display: flex;
+      }
+      ul {
+        display: flex;
+        margin: auto;
+        padding: 0;
+        width: 25vw;
+        min-width: 15em;
+        justify-content: space-between;
+      }
+      li {
+        list-style: none;
+      }
+      @font-face {
+        font-family: 'Audiowide Regular';
+        src: url('./fonts/Audiowide-Regular.ttf');
+      }
+		</style>
+	</head>
+	<body>
+    <nav>
+      <ul>
+        <li><a href="https://blog.osyox.com">BLOG</a></li>
+        <li><a href="https://github.com/mioco">GITHUB</a></li>
+        <li><a href="#about">ABOUT</a></li>
+      </ul>
+    </nav>
+		<script src="./lib/three.min.js"></script>
+
+		<script src="./lib/Projector.js"></script>
+		<script src="./lib/CanvasRenderer.js"></script>
+
+		<script>
+			var SEPARATION = 100, AMOUNTX = 60, AMOUNTY = 30;
+			var container;
+      var cameraShakeY = 0;
+			var camera, scene, renderer;
+			var particles, particle, count = 0;
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+      var Wave;
+      var mouseX = 0;
+      var light;
+
+      var loader = new THREE.FontLoader();
+			loader.load( './fonts/Audiowide_Regular.json', function ( font ) {
+        init();
+				initFont( font );
+				animate();
+			} );
+
+			function init() {
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 4000 );
+				camera.position.set(0, 0, 40);
+				scene = new THREE.Scene();
+				particles = new Array();
+				var PI2 = Math.PI * 2;
+        
+				var material = new THREE.SpriteCanvasMaterial( {
+					color: 0xffffff,
+					program: function ( context ) {
+						context.beginPath();
+						context.arc( 0, 0, 0.5, 0, PI2, true );
+						context.fill();
+					}
+				} );
+
+        getPlane();
+				var i = 0;
+				for ( var ix = 0; ix < AMOUNTX; ix ++ ) {
+					for ( var iy = 0; iy < AMOUNTY; iy ++ ) {
+            particle = Wave.vertices[i ++]
+						particle.x = ix * SEPARATION - ( ( AMOUNTX * SEPARATION ) / 2 );
+						particle.y = iy * SEPARATION - ( ( AMOUNTY * SEPARATION ) / 2 );
+					}
+				}
+				renderer = new THREE.CanvasRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+        light = new THREE.DirectionalLight('#ffffff', 0.5);
+        light.position.set(0.2, 1, 0.5);
+        scene.add(light);
+
+				document.addEventListener( 'mousemove', onMouseMove, false );
+				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
+				//
+				window.addEventListener( 'resize', onWindowResize, false );
+			}
+
+      function initFont(font) {
+        var xMid, text;
+
+        var textShape = new THREE.BufferGeometry();
+
+        var matLite = new THREE.MeshBasicMaterial( {
+          transparent: true,
+          opacity: 0.4,
+          side: THREE.DoubleSide
+        } );
+
+        var message = "W E L C O M E  T O  M Y  W O R L D";
+
+        var shapes = font.generateShapes( message, 30, 2 );
+
+        var geometry = new THREE.ShapeGeometry( shapes );
+
+        // 定位到摄像机前面
+        geometry.computeBoundingBox();
+
+        xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
+
+        geometry.translate( xMid, 150, -500 );
+
+        // make shape ( N.B. edge view not visible )
+
+        textShape.fromGeometry( geometry );
+
+        text = new THREE.Mesh( textShape, matLite );
+        scene.add( text );
+      }
+
+      function getPlane() {
+        var width  = SEPARATION * AMOUNTX;
+        var height = SEPARATION * AMOUNTY;
+      
+        Wave = new THREE.PlaneGeometry(width, height, AMOUNTX, AMOUNTY);
+        var material = new THREE.MeshLambertMaterial( {
+          side: THREE.DoubleSide
+        } );
+        var ground = new THREE.Mesh(Wave, material);
+        ground.rotation.x = Math.PI / -2;
+        scene.add(ground);
+      }
+
+      function onMouseMove (event) {
+        mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+      }
+
+			function onWindowResize() {
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+			function onDocumentTouchStart( event ) {
+			}
+			function onDocumentTouchMove( event ) {
+			}
+			//
+			function animate() {
+				render();
+        renderCamera();
+				requestAnimationFrame( animate );
+			}
+			function render() {
+				camera.lookAt( scene.position );
+				var i = 0;
+				for ( var ix = 0; ix < AMOUNTX; ix ++ ) {
+					for ( var iy = 0; iy < AMOUNTY; iy ++ ) {
+						particle = Wave.vertices[ i++ ];
+						particle.z = ( Math.sin( ( ix + count ) * 0.2 ) * 100 ) +
+							( Math.sin( ( iy + count ) * 0.3 ) * 100 ) - 300;
+					}
+				}
+				renderer.render( scene, camera );
+				count += 0.1;
+			}
+
+      function renderCamera() {
+        camera.position.y += Math.cos(cameraShakeY) / 50;
+        cameraShakeY += 0.02;
+
+        //camera.position.x += ((mouseX * 20) - camera.position.x) * 2;
+      }
+		</script>
+	</body>
+</html>
