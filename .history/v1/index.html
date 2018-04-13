@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>osyo - Just an AI</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				color: #fff;
+				font-family: Monospace;
+				font-size: 13px;
+				text-align: center;
+				font-weight: bold;
+
+				background-color: #000;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#info {
+				position: absolute;
+				width: 100%;
+				text-align: center;
+				padding: 5px;
+			}
+
+			a { 
+				color:#fff;
+        font-family: 'Audiowide Regular';
+        letter-spacing: 2px;
+        font-size: .8em;
+				text-decoration: none;
+				z-index: 1;
+				position: relative;
+			}
+
+			nav {
+        margin-top: 2em;
+        position: absolute;
+				top: 25vh;
+				left: 50vw;
+      }
+
+      ul {
+        display: flex;
+        margin: auto;
+        padding: 0;
+        width: 35vw;
+        min-width: 25em;
+				max-width: 30em;
+        justify-content: space-between;
+      }
+
+      li {
+        list-style: none;
+				position: relative;
+				transition: all .3s ease-in-out;
+      }
+
+			li::before {
+				content: '';
+				display: block;
+				border-top: 1px solid #fff;
+				border-bottom: 1px solid #fff;
+				position: absolute;
+				height: 0;
+				width: 100%;
+				padding: 0px .2em;
+				margin-top: .5em;
+				margin-left: -.3em;
+				opacity: 0;
+				transition: all .2s linear;
+			}
+
+			li:hover::before {
+				padding: .4em .2em;
+				height: 1em;
+				opacity: 1;
+				margin-top: -.3em;
+			}
+
+			li.hidden {
+				opacity: 0;
+				margin-top: -2em;
+			}
+
+		@media screen and (max-width: 480px) {
+			nav {
+				margin-top: 2em;
+				top: 30vh;
+				left: 50vw;
+				transform: translateX(-50%);
+			}
+
+			ul {
+				min-width: 20em;
+				width: 70vw;
+			}
+		}
+		</style>
+	</head>
+
+	<body>
+    <nav>
+      <ul>
+        <li><a href="//blog.osyox.com">BLOG</a></li>
+				<li><a href="">LAB</a></li>
+        <li><a href="//github.com/mioco">GITHUB</a></li>
+      </ul>
+		</nav>
+		
+		<div id="container"></div>
+
+		<script src="./lib/three.min.js"></script>
+
+		<script src="./lib/TrackballControls.js"></script>
+		<script src="./lib/env.js"></script>
+
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-108005222-1"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+
+			gtag('config', 'UA-108005222-1');
+		</script>
+	</body>
+</html>
